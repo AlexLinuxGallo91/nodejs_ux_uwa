@@ -1,0 +1,24 @@
+{
+  "name": "ux_owa",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Alexis Araujo",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^3.3.0"
+  },
+  "devDependencies": {},
+  "description": "nodejs_ux_owa exchange 2013",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexLinuxGallo91/nodejs_ux_owa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlexLinuxGallo91/nodejs_ux_owa/issues"
+  },
+  "homepage": "https://github.com/AlexLinuxGallo91/nodejs_ux_owa#readme"
+}
