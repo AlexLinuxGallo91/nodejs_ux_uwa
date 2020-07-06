@@ -1,3 +1,4 @@
+const constantes = require('./constantes');
 const validaciones = require('./validaciones');
 
 /**
@@ -114,11 +115,32 @@ const generarJsonStepError = (json, numStep, numStepOut, status,
     return json;
 }
 
+/**
+ *
+ * @param json
+ * @param dateInicial
+ * @returns {*}
+ */
+const establecerTiempoFinalTotalPruebaUx = (json, dateInicial) =>{
+    let dateFinal = new Date();
+    let statusStep1 = json.steps[0].status === constantes.SUCCESS;
+    let statusStep2 = json.steps[1].status === constantes.SUCCESS;
+    let statusStep3 = json.steps[2].status === constantes.SUCCESS;
+
+    json.start = validaciones.obtenerFechaFormateada(dateInicial);
+    json.end = validaciones.obtenerFechaFormateada(dateFinal);
+    json.time = validaciones.obtenerDiferenciaTiempoSegundos(dateInicial, dateFinal);
+    json.status = (statusStep1 & statusStep2 & statusStep3 ? constantes.SUCCESS : constantes.FAILED);
+
+    return json;
+}
+
 module.exports = {
     establecerEstructuraPrincipalJson: establecerEstructuraPrincipalJson,
     establecerRaizJson: establecerRaizJson,
     generarNodoPadre: generarNodoPadre,
     generarNodoHijo: generarNodoHijo,
     generarNuevoTemplateJson: generarNuevoTemplateJson,
-    generarJsonStepError : generarJsonStepError
+    generarJsonStepError : generarJsonStepError,
+    establecerTiempoFinalTotalPruebaUx : establecerTiempoFinalTotalPruebaUx
 }

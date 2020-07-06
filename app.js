@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 const validaciones = require('./validaciones');
 const constantes = require('./constantes');
 const steps = require('./steps');
+const winston = require('winston');
 
 (async () => {
 
@@ -11,7 +12,6 @@ const steps = require('./steps');
     let jsonRaiz = jsonResult.establecerEstructuraPrincipalJson();
     let jsonParam = {};
     let args = proc.argv;
-    let msgErrorCredenciales = undefined;
     let fechaInicio = new Date();
 
     jsonParam = await validaciones.verificacionArgsJson(args).then((json) => {
@@ -43,8 +43,13 @@ const steps = require('./steps');
     if (await validaciones.existeElementoHtml(page, '#signInErrorDiv')) {
         let msgError = await validaciones.obtenerMensajeErrorCredenciales(page);
         msgError = msgError.trim();
-        jsonRaiz = validaciones.generarJsonErrorCredenciales(jsonParam, jsonRaiz, jsonCorreoPrueba, msgError);
+        jsonRaiz = validaciones.generarJsonErrorCredenciales(jsonParam, jsonRaiz, jsonCorreoPrueba, msgError,
+            fechaInicio);
         console.log(JSON.stringify(jsonRaiz));
+
+        //cierra el navegador
+        await browser.close();
+
         process.exit(1);
     }
 
@@ -69,12 +74,10 @@ const steps = require('./steps');
     //cerrando navegador
     await browser.close();
 
-    jsonRaiz.body = jsonCorreoPrueba;
+    jsonRaiz.body = jsonResult.establecerTiempoFinalTotalPruebaUx(jsonCorreoPrueba, fechaInicio);
     jsonRaiz.node = jsonParam.user;
 
     console.log(JSON.stringify(jsonRaiz));
-    //console.log(validaciones.obtenerDiferenciaTiempoMs(fechaInicio));
-
 })();
 
 

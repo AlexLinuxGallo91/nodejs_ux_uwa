@@ -54,51 +54,59 @@ const stepNavegacionBuzonDeEntrada = async (page, tiempoEnSeg, segReload, json) 
 
     tiempoPorFinalizar.setTime(fechaInicio.getTime() + (tiempoEnSeg * 1000));
 
-    while (new Date() < tiempoPorFinalizar) {
-        await page.waitFor(4000);
-        let divContenedorCarpetas = [];
+    try {
+        while (new Date() < tiempoPorFinalizar) {
+            await page.waitFor(4000);
+            let divContenedorCarpetas = [];
 
-        if (await validaciones.existeElementoHtml(page, '._n_Z6')) {
-            divContenedorCarpetas = await page.evaluate(() => Array.from(
-                document.getElementsByClassName('_n_Z6'), element => element.textContent));
-        } else {
-            contadoresErrores++;
-        }
-
-        if (ultimaCarpetaSeleccionada === '' && divContenedorCarpetas.length !== 0) {
-            ultimaCarpetaSeleccionada = divContenedorCarpetas[0];
-            await page.evaluate(ultimaCarpetaSeleccionada => {
-                let carpetaHtml = document.querySelector(`span._n_Z6[title='${ultimaCarpetaSeleccionada}']`);
-                carpetaHtml.click();
-            }, ultimaCarpetaSeleccionada);
-
-        } else if (divContenedorCarpetas.length !== 0) {
-
-            for (let i = 0; i < divContenedorCarpetas.length; i++) {
-                if (ultimaCarpetaSeleccionada === divContenedorCarpetas[i]) {
-                    indexUltimaCarpetaSeleccionada = i;
-                    break;
-                }
-            }
-
-            if (indexUltimaCarpetaSeleccionada === divContenedorCarpetas.length - 1) {
-                indexUltimaCarpetaSeleccionada = 0;
+            if (await validaciones.existeElementoHtml(page, '._n_Z6')) {
+                divContenedorCarpetas = await page.evaluate(() => Array.from(
+                    document.getElementsByClassName('_n_Z6'), element => element.textContent));
             } else {
-                indexUltimaCarpetaSeleccionada++;
+                contadoresErrores++;
             }
 
-            ultimaCarpetaSeleccionada = divContenedorCarpetas[indexUltimaCarpetaSeleccionada];
+            if (ultimaCarpetaSeleccionada === '' && divContenedorCarpetas.length !== 0) {
+                ultimaCarpetaSeleccionada = divContenedorCarpetas[0];
+                await page.evaluate(ultimaCarpetaSeleccionada => {
+                    let carpetaHtml = document.querySelector(
+                        `span._n_Z6[title='${ultimaCarpetaSeleccionada}']`);
+                    carpetaHtml.click();
+                }, ultimaCarpetaSeleccionada);
 
-            await page.evaluate((ultimaCarpetaSeleccionada) => {
-                let carpetaHtml = document.querySelector(`span._n_Z6[title='${ultimaCarpetaSeleccionada}']`);
-                carpetaHtml.click();
-            }, ultimaCarpetaSeleccionada);
+            } else if (divContenedorCarpetas.length !== 0) {
+
+                for (let i = 0; i < divContenedorCarpetas.length; i++) {
+                    if (ultimaCarpetaSeleccionada === divContenedorCarpetas[i]) {
+                        indexUltimaCarpetaSeleccionada = i;
+                        break;
+                    }
+                }
+
+                if (indexUltimaCarpetaSeleccionada === divContenedorCarpetas.length - 1) {
+                    indexUltimaCarpetaSeleccionada = 0;
+                } else {
+                    indexUltimaCarpetaSeleccionada++;
+                }
+
+                ultimaCarpetaSeleccionada = divContenedorCarpetas[indexUltimaCarpetaSeleccionada];
+
+                await page.evaluate((ultimaCarpetaSeleccionada) => {
+                    let carpetaHtml = document.querySelector(
+                        `span._n_Z6[title='${ultimaCarpetaSeleccionada}']`);
+                    carpetaHtml.click();
+                }, ultimaCarpetaSeleccionada);
+            }
+
+            await page.waitFor(tiempoReinicio);
+            await page.reload();
+            iteracionRealizadas++;
         }
-
-        await page.waitFor(tiempoReinicio);
-        await page.reload();
-        iteracionRealizadas++;
+    } catch (e) {
+        throw new error.ErrorUxOwa(`Se presenta error durante la navegacion dentro del buzon de entrada en la ` +
+            `plataforma de owa ${e.message}`, dateEjecucionInicial, new Date());
     }
+
 
     if (contadoresErrores > (30 * iteracionRealizadas) / 100) {
         throw new error.ErrorUxOwa(`Se presenta un numero total de ${contadoresErrores} errores durante ` +

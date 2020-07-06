@@ -1,6 +1,7 @@
 const constantes = require('./constantes');
 const util = require('util');
 
+
 /**
  *
  * @param args
@@ -96,29 +97,31 @@ const obtenerFechaFormateada = (fecha) =>{
  * @param jsonRaiz
  * @param jsonCorreoPrueba
  * @param msgError
+ * @param dateInicial
  * @returns {*}
  */
-let generarJsonErrorCredenciales = (jsonParamCorreo, jsonRaiz, jsonCorreoPrueba, msgError) => {
-    let msgError1 = `No fue posible ingresar al portal OWA, se presenta error de credenciales: ${msgError}`;
-    let msgError2 = `No fue posible navegar dentro del portal OWA, se presenta error de credenciales: ${msgError}`;
-    let msgError3 = `No fue posible cerrar la sesion dentro del portal OWA, se presenta error de credenciales: ${msgError}`;
+let generarJsonErrorCredenciales = (jsonParamCorreo, jsonRaiz, jsonCorreoPrueba, msgError, dateInicial) => {
+    let msgErr1 = `No fue posible ingresar al portal OWA, se presenta error de credenciales: ${msgError}`;
+    let msgErr2 = `No fue posible navegar dentro del portal OWA, se presenta error de credenciales: ${msgError}`;
+    let msgErr3 = `No fue posible cerrar sesion dentro del portal OWA, se presenta error de credenciales: ${msgError}`;
+    let listMsgErr = [msgErr1, msgErr2, msgErr3];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < listMsgErr.length; i++) {
+
+        let dateInicialCustom = (i === 0 ? dateInicial : new Date());
+
         jsonCorreoPrueba.steps[i].status = constantes.FAILED;
+        jsonCorreoPrueba.steps[i].start = obtenerFechaFormateada(dateInicialCustom);
+        jsonCorreoPrueba.steps[i].end = obtenerFechaFormateada(new Date());
+        jsonCorreoPrueba.steps[i].time = obtenerDiferenciaTiempoSegundos(dateInicialCustom, new Date());
         jsonCorreoPrueba.steps[i].output[0].status = constantes.FAILED;
-
-        switch (i) {
-            case 0:
-                jsonCorreoPrueba.steps[i].output[0].output = msgError1;
-                break;
-            case 1:
-                jsonCorreoPrueba.steps[i].output[0].output = msgError2;
-                break;
-            case 2:
-                jsonCorreoPrueba.steps[i].output[0].output = msgError3;
-                break;
-        }
+        jsonCorreoPrueba.steps[i].output[0].output = listMsgErr[i];
     }
+
+    jsonCorreoPrueba.start = obtenerFechaFormateada(dateInicial);
+    jsonCorreoPrueba.end = obtenerFechaFormateada(new Date());
+    jsonCorreoPrueba.status = constantes.FAILED;
+    jsonCorreoPrueba.time = obtenerDiferenciaTiempoSegundos(dateInicial, new Date());
 
     jsonRaiz.body = jsonCorreoPrueba;
     jsonRaiz.node = jsonParamCorreo.user;
