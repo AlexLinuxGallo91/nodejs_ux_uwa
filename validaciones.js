@@ -1,6 +1,10 @@
 const constantes = require('./constantes');
 const util = require('util');
+const fs = require('fs');
 
+const verificacionDepuracionLogs = async () => {
+    fs.readdir();
+}
 
 /**
  *
@@ -135,5 +139,6 @@ module.exports = {
     obtenerMensajeErrorCredenciales: obtenerMensajeErrorCredenciales,
     generarJsonErrorCredenciales: generarJsonErrorCredenciales,
     obtenerDiferenciaTiempoSegundos : obtenerDiferenciaTiempoSegundos,
-    obtenerFechaFormateada : obtenerFechaFormateada
+    obtenerFechaFormateada : obtenerFechaFormateada,
+    verificacionDepuracionLogs : verificacionDepuracionLogs
 };

@@ -4,6 +4,7 @@ const util = require('util');
 const validaciones = require('./validaciones');
 const jsonResult = require('./jsonResult');
 const error = require('./error');
+const logger = require('./logger/logger');
 
 const stepIngresoPortalOwa = async (page, json, jsonParam) => {
     let elemeHtmlPorVerificar = ['._n_a7'];
@@ -21,8 +22,10 @@ const stepIngresoPortalOwa = async (page, json, jsonParam) => {
 
         await Promise.all([
             page.$eval('.signinbutton', btn => btn.click()),
-            page.waitForNavigation({waitUntil: 'networkidle0'}),
+            page.waitForNavigation({waitUntil: 'domcontentloaded'}),
         ]);
+
+        await page.waitFor(10000);
 
     } catch (e) {
         throw new error.ErrorUxOwa(`Sucedio un error durante el ingreso al portal: ${e.message}`, dateEjecucionInicial,
@@ -106,7 +109,6 @@ const stepNavegacionBuzonDeEntrada = async (page, tiempoEnSeg, segReload, json) 
         throw new error.ErrorUxOwa(`Se presenta error durante la navegacion dentro del buzon de entrada en la ` +
             `plataforma de owa ${e.message}`, dateEjecucionInicial, new Date());
     }
-
 
     if (contadoresErrores > (30 * iteracionRealizadas) / 100) {
         throw new error.ErrorUxOwa(`Se presenta un numero total de ${contadoresErrores} errores durante ` +
